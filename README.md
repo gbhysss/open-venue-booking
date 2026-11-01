@@ -1,96 +1,80 @@
 # OpenVenue
 
-**A friendly, self-hosted venue booking and approval system for community organizations.**
+**Self-hosted venue booking and approval for schools, community centers and small organizations.**
 
-[中文说明](README.zh-CN.md) · [Installation](docs/installation.md) · [Security](SECURITY.md) · [Contributing](CONTRIBUTING.md)
+[中文说明](README.zh-CN.md) · [Install](docs/installation.md) · [Upgrade](docs/container-verification.md#已有-v021-部署) · [Report a bug](https://github.com/gbhysss/open-venue-booking/issues/new/choose) · [Security](SECURITY.md)
 
-> **Status: v0.2.2 container preview.** Typecheck, production build, native PostgreSQL 17 integration and local HTTP regression tests have passed. See [QUALITY_STATUS.md](QUALITY_STATUS.md) for exact evidence and remaining limits. Linux Docker Compose deployment and database recovery passed in GitHub CI for application commit 728b33d. Public hosting is a separate deployment step.
+![Venue directory with fictional demonstration spaces](docs/screenshots/venue-directory.jpg)
 
-## Highlights
+> **v0.2.2 is a preview release.** Linux Docker Compose deployment, PostgreSQL integration, HTTP regressions and database restart recovery passed in [GitHub CI](https://github.com/gbhysss/open-venue-booking/actions/runs/41266819211). A public hosted demo is not provided; the screenshots use fictional data. See [verification scope](QUALITY_STATUS.md).
 
-- Public venue directory and mobile-friendly booking form
-- Real-time view of *approved* occupied time slots (without exposing applicant details)
-- Anonymous booking with a private, high-entropy tracking token (the URL is shown only once)
-- Administrator-only dashboard to create/disable venues and approve/reject requests
-- PostgreSQL exclusion constraint prevents overlapping **approved** bookings even during concurrent approvals
-- Better Auth sessions and password hashing; public account sign-up disabled
-- Docker Compose and SQL migration, optional fictional demo dataset
-- Open to community contributions under the MIT license
+## What you can do
 
-## Screens
+| For applicants | For administrators |
+| --- | --- |
+| Browse venues and confirmed occupied slots | Add venues and pause new requests |
+| Request a future date and time without an account | Review requests with server-side filtering and pagination |
+| Save a private status link | Approve or reject requests and leave a decision note |
+| Use the same web app on phone or desktop | Prevent overlapping approvals at the PostgreSQL level |
 
-- `/` — browse venues
-- `/venues/[id]` — request a reservation
-- `/track#token=...` — check an individual request (the secret stays in a URL fragment, not a server access-log query string)
-- `/login` — administrator sign-in
-- `/admin` — manage venues and review bookings
+OpenVenue runs as one independent organization per deployment. It uses Next.js, React, TypeScript, PostgreSQL, Drizzle, Better Auth and Zod. The current web interface is English; documentation is available in English and Chinese.
 
-## Guided local Docker setup (macOS or Linux)
+## Start with Docker
 
-For a fresh checkout with Docker Desktop installed, run `bash scripts/setup-docker.sh`. The script creates random local secrets, prompts for administrator credentials and optionally installs fictional demo venues. It refuses to overwrite an existing `.env`. An Internet connection is required to download dependencies and container images.
+Install Docker with Compose v2 (Docker Desktop on macOS), Git and OpenSSL. In a fresh directory:
 
-## GitHub publication plan
+```bash
+git clone https://github.com/gbhysss/open-venue-booking.git
+cd open-venue-booking
+bash scripts/setup-docker.sh
+```
 
-**Do not publish this preview publicly yet.** On a Mac with `git` and GitHub CLI (`gh`) installed, use `gh auth login` and then run `bash scripts/create-private-github-repo.sh`. It uses the GitHub account `gbhysss`, runs offline checks, asks twice before uploading, and **creates only a new PRIVATE** `gbhysss/open-venue-booking` repository. It never writes to `gbhysss/yycg`. Manually review rights/attribution, review the committed `package-lock.json`, and complete your deployment checks before changing visibility.
+The script generates unique local database/authentication secrets, initializes the schema, asks you to choose an administrator email and a password of at least 12 characters, and optionally adds three fictional venues. It waits for database and application readiness.
 
-## Quick start (local development)
+Open **http://localhost:3000**; sign in at **http://localhost:3000/login**. There is no shared default password and no public administrator signup. Keep the private link shown after each booking submission.
 
-Requirements: Node 22.16+, PostgreSQL 17+, npm.
+The initial download/build needs Internet access. An existing `.env` is preserved; follow the [manual installation and upgrade instructions](docs/installation.md) for an existing deployment.
+
+```bash
+docker compose ps
+curl --fail http://localhost:3000/api/health
+docker compose down  # stops services and retains the database volume
+```
+
+See [the demo walkthrough](docs/container-verification.md), [screenshots](docs/screenshots/README.md) and [v0.2.2 release notes](docs/releases/v0.2.2.md).
+
+## Local development
+
+Requirements: a maintained Node.js 22 version at or above 22.16, npm, PostgreSQL 17+, and your own empty database.
 
 ```bash
 cp .env.example .env
-# Set DATABASE_URL, BETTER_AUTH_SECRET and BETTER_AUTH_URL in .env
+# Configure DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL and APP_URL.
 npm ci
 npm run db:migrate
-npm run admin:create  # export ADMIN_EMAIL and ADMIN_PASSWORD before running
+# Set ADMIN_EMAIL and ADMIN_PASSWORD temporarily; see docs/installation.md.
+npm run admin:create
 npm run dev
 ```
 
-The sign-up endpoint is disabled in the running web app. `admin:create` creates the first admin through a **separate command-line process**; protect that terminal, and do not store a password in code or git.
+Run `npm run test:static`, `npm run typecheck`, `npm test` and `npm run build`. PostgreSQL tests require an explicit disposable `TEST_DATABASE_URL` ending in `_test`; otherwise those tests are skipped. Local HTTP tests also require the explicit `TEST_APP_URL` and fictional test admin credentials. [CI](.github/workflows/ci.yml) shows a complete test environment.
 
-See [docs/installation.md](docs/installation.md) for Docker commands, administrator setup, production steps and verification checklist.
+## Deployment and privacy
 
-## Main technologies
+- The default Compose configuration exposes the app only on `127.0.0.1:3000` and does not publish a database port. Use HTTPS and a configured reverse proxy for a public site; `APP_URL` must exactly match its browser origin.
+- Application writes validate JSON size and privileged request origins. Booking inserts atomically enforce 5 accepted submissions per email per 24 hours and a deployment-wide per-minute ceiling (`BOOKING_MAX_PER_MINUTE`, default 60). Add proxy-level limits for request floods.
+- Tracking links are bearer secrets passed in a URL fragment and POST body. Anyone with a full link can view its status and administrator note. Keep personal information out of those notes.
+- Applicant email ownership is not verified. Define retention/deletion, privacy notices, backups and access policies before collecting personal information.
+- Never upload a real `.env`, database dump, credentials or applicant records. Do not use `docker compose down -v` on a database you need to retain.
 
-Next.js 16 · React 19 · TypeScript · PostgreSQL 17 · Drizzle · Better Auth · Zod · plain CSS.
-
-The core data model and business logic were written for this independent project. **No school datasets, identities, credentials, or original repository Git history are included.**
-
-## Safety & privacy
-
-- Unauthenticated endpoints cannot access administrator lists or configuration.
-- The optional tracking token is a bearer secret: whoever holds the link can see the reservation's status. New links use URL fragments and send the token in a POST body rather than query strings. It does **not** return names or contact details.
-- Use HTTPS in production, configure APP_URL to the exact public origin (required for admin mutation Origin checks), and add edge rate limiting to public endpoints.
-- The demo seed contains fictional organizations and venues only.
-- Review retention periods, email consent, abuse protection and backup policies before handling personal data.
-
-This is a starter, not a formally audited production solution. Report security concerns privately using [SECURITY.md](SECURITY.md).
-
-## Roadmap
-
-- [x] Booking requests and private status tracking
-- [x] Administrator workflow
-- [x] Database-enforced approval conflicts
-- [x] Basic Docker and developer documentation
-- [x] Offline security checks and time-zone tests (14 passing)
-- [x] Bounded API JSON bodies and same-origin guard for admin writes
-- [x] Local native PostgreSQL and standalone HTTP regression tests
-- [ ] GitHub CI run and deployed public demo
-- [ ] Audit logging UI and more granular permissions
-- [ ] Emails and configurable notifications
-- [ ] Localization and accessibility review
-- [ ] QR check-in and import/export tools
+This preview has not received an independent penetration test. Email delivery, QR check-in, attachments, payment, multilingual UI and multi-tenant isolation are not included.
 
 ## Contribute
 
-Help with translations, accessibility, tests, docs or deployment guides. Open an issue for discussions. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Bug reports, documentation improvements, accessibility fixes and translations are welcome. Use the [issue templates](https://github.com/gbhysss/open-venue-booking/issues/new/choose) and read [CONTRIBUTING.md](CONTRIBUTING.md). Report vulnerabilities privately using [SECURITY.md](SECURITY.md).
 
-MIT License © 2026 OpenVenue contributors.
+Next priorities: installation feedback from independent deployments, accessibility/localization, notifications, and a broader audit trail UI. Usage and adoption have not yet been established.
 
-## v0.2.1
+## License
 
-修复内容与升级步骤：[docs/upgrading-0.2.1.md](docs/upgrading-0.2.1.md)。验证范围：[QUALITY_STATUS.md](QUALITY_STATUS.md)。
-
-## v0.2.2 容器验证
-
-容器健康检查、数据库恢复验收与本机演示步骤见 [docs/container-verification.md](docs/container-verification.md)。GitHub Actions 的 Docker 任务提供逐次提交的验收结果。
+[MIT](LICENSE) for this repository's application code and documentation, except where otherwise identified. Dependencies retain their own licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

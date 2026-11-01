@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability / 安全漏洞
+    url: https://github.com/gbhysss/open-venue-booking/security/policy
+    about: Use the private reporting route; do not disclose secrets or exploits in public issues.

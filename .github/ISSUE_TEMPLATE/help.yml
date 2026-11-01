@@ -1,0 +1,25 @@
+name: Installation help / 安装求助
+description: Ask about the documented setup or upgrade process.
+title: "[Help]: "
+labels: [question]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version / 版本
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Environment and attempted steps / 环境与已尝试步骤
+      description: Include OS, Docker/Compose or Node/PostgreSQL versions and the command that failed.
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question and redacted error / 问题与脱敏错误
+      description: Never include passwords, .env contents, session cookies, private links or real applicant records.
+    validations:
+      required: true

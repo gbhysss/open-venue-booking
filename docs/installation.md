@@ -1,6 +1,6 @@
 # Deployment and verification
 
-> This v0.2.1 is an unaudited preview. Test in an isolated environment first.
+> v0.2.2 is a preview. Linux Docker verification is recorded in [QUALITY_STATUS.md](../QUALITY_STATUS.md); validate your own deployment before real data.
 
 ## Local development
 
@@ -41,7 +41,7 @@ APP_TIME_ZONE=Asia/Shanghai
 
 ```bash
 docker compose --profile tools build
-docker compose up -d db
+docker compose up -d --wait --wait-timeout 90 db
 docker compose --profile tools run --rm maintenance npm run db:migrate
 ```
 
@@ -64,7 +64,7 @@ docker compose --profile tools run --rm -e ALLOW_DEMO_SEED=true maintenance npm 
 6. Start the web app:
 
 ```bash
-docker compose up -d app
+docker compose up -d --wait --wait-timeout 90 app
 ```
 
 The sample Compose binds port 3000 to `127.0.0.1` only. Use an HTTPS reverse proxy (Caddy or Nginx) for public access and update `APP_URL` to the canonical HTTPS origin. **Do not change the port binding to `0.0.0.0` without explicit firewall, reverse proxy, throttling and security review.**
@@ -103,6 +103,3 @@ The offline suite verifies origin checks, bounded JSON body parsing, schema guar
 
 If using a reverse proxy, **APP_URL must match the exact external browser origin**; this is required for CSRF-related origin checks. Local Docker's default is `http://localhost:3000`.
 
-## GitHub staging (private by default)
-
-With GitHub CLI installed and authenticated (`gh auth login`), run `bash scripts/create-private-github-repo.sh` from this source directory. It creates `gbhysss/open-venue-booking` as a **Private** repository only after explicit confirmation. No access or mutation to `gbhysss/yycg` is involved.

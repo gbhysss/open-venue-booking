@@ -1,0 +1,22 @@
+name: Feature request / 功能建议
+description: Explain a real venue-management need and the proposed behavior.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Problem and users / 问题与使用者
+      description: Describe the workflow using fictional examples, without personal data.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior / 建议的行为
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and constraints / 替代方式与约束

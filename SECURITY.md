@@ -1,32 +1,25 @@
 # Security policy
 
-**This repository is a v0.2.1 preview, not an audited production release.**
+OpenVenue v0.2.x is preview software. The latest published preview receives best-effort fixes; there is no guaranteed response time or support SLA.
 
-## Reporting a vulnerability
+## Report privately
 
-Use GitHub **Private vulnerability reporting** (Security → Advisories → Report a vulnerability) when enabled for the repository. Do not publish working exploits or secrets in public issues. If the private reporting function is unavailable, first request a private channel from the maintainers without sharing exploit details.
+Use [GitHub private vulnerability reporting](https://github.com/gbhysss/open-venue-booking/security/advisories/new) when it is available. If the private form is unavailable, open an issue containing only a request for a private reporting channel. Do not include exploit details, credentials, booking records or tracking links in that public request.
 
-## Security expectations
+Include the affected version, deployment type, impact, a minimal fictional-data reproduction and suggested mitigation in the private report. Do not test against someone else's deployment without authorization.
 
-- Do not deploy the preview on a public hostname before testing authorization, data retention and rate limits.
-- Rotate any secret accidentally committed to Git; deleting a file from the latest commit is not sufficient.
-- Keep dependency versions updated and review automated security advisories.
-- Use HTTPS and a reverse proxy. Do not expose PostgreSQL to the Internet.
-- Use backups and limit administrator access.
-- Never seed live personal data into a public demo.
+## Included safeguards
 
-## Included controls
+Server-side administrator authorization, signed Better Auth sessions, disabled public signup, same-origin checks for privileged writes, bounded application JSON bodies, private status tokens, atomic booking quotas and PostgreSQL constraints for approved-slot conflicts. Docker runs the web app without root and includes schema-aware readiness checks.
 
-- Authenticated admin APIs, same-origin checks on privileged writes, bounded JSON bodies, Better Auth sessions, private tracking tokens passed in a POST body, input validation and a database-level constraint on overlapping approved reservations.
-- No self-service signup in the server's runtime authentication configuration.
+## Deployment responsibilities
 
-## Not yet included
+Use unique secrets, HTTPS, a correctly configured external APP_URL, proxy-level request limits/timeouts, backups, and organization-specific retention/deletion and privacy rules. The default Compose file does not expose PostgreSQL and binds the application to loopback. Never seed real data into a public demo.
 
-- Production-proven request throttling and bot mitigation, audit log dashboard, email ownership verification, comprehensive security integration tests, organization-level data retention controls and an external penetration test.
+Anyone holding a full private tracking link can read the status and decision note; keep sensitive content out of notes. Applicant email ownership is not verified. Accepted-submission quotas do not replace protection against request floods. Tests and dependency scans do not constitute an independent penetration test or a guarantee against unknown vulnerabilities.
 
-## Additional v0.2.1 considerations
+If a credential leaks, rotate it and assess the entire history and deployment; deleting the latest file alone is insufficient.
 
-- Set `APP_URL` to the exact browser origin. A mismatch (e.g. HTTPS vs HTTP, subdomain or port) will deliberately block administrator POST/PATCH calls.
-- Newly generated private tracking links use fragment identifiers (`#token=...`). Fragments are not sent to HTTP servers; however anyone who gets the full link still gains access to that booking status.
-- The included offline tests provide limited regression coverage, **not** a security audit or an end-to-end test.
-- The reviewed package-lock.json is included. Use npm ci in development, CI and Docker; rerun the dependency audit before release.
+## 中文说明
+
+漏洞优先通过 GitHub 私密安全报告提交。入口不可用时，只在公开 Issue 请求建立私密渠道，不要公开漏洞复现、密钥、真实预约记录或私密查询链接。本项目为预览版，响应与修复为尽力维护，不承诺生产 SLA。
