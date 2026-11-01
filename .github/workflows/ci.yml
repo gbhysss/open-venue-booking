@@ -1,0 +1,75 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci_test_password
+          POSTGRES_DB: openvenue_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ci -d openvenue_test"
+          --health-interval 5s --health-timeout 5s --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Offline security and time-zone checks
+        run: npm run test:static
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit and PostgreSQL integration tests
+        env:
+          TEST_DATABASE_URL: postgresql://ci:ci_test_password@localhost:5432/openvenue_test
+        run: npm test
+      - name: Build
+        env:
+          DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
+          BETTER_AUTH_SECRET: build-only-placeholder-this-is-not-a-production-secret
+          BETTER_AUTH_URL: http://localhost:3000
+          APP_URL: http://localhost:3000
+        run: npm run build
+      - name: Standalone HTTP regression tests
+        env:
+          DATABASE_URL: postgresql://ci:ci_test_password@localhost:5432/openvenue_test
+          TEST_DATABASE_URL: postgresql://ci:ci_test_password@localhost:5432/openvenue_test
+          TEST_APP_URL: http://127.0.0.1:3000
+          APP_URL: http://127.0.0.1:3000
+          BETTER_AUTH_URL: http://127.0.0.1:3000
+          BETTER_AUTH_SECRET: ci-only-auth-secret-at-least-32-characters-long
+          ADMIN_EMAIL: ci@example.invalid
+          ADMIN_PASSWORD: ci-only-not-a-real-password
+          TEST_ADMIN_EMAIL: ci@example.invalid
+          TEST_ADMIN_PASSWORD: ci-only-not-a-real-password
+          BOOKING_MAX_PER_MINUTE: '20'
+          HOSTNAME: 127.0.0.1
+          PORT: '3000'
+        run: |
+          npm run db:migrate
+          npm run admin:create
+          cp -r public .next/standalone/public
+          cp -r .next/static .next/standalone/.next/static
+          node .next/standalone/server.js > /tmp/openvenue-api.log 2>&1 &
+          app_pid=$!
+          trap 'kill "$app_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl --silent --fail http://127.0.0.1:3000/login > /dev/null; then break; fi
+            sleep 1
+          done
+          if ! npm run test:api; then
+            cat /tmp/openvenue-api.log
+            exit 1
+          fi

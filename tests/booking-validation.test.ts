@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { reservationInput,isFutureSlot } from '../src/lib/validation';
+const base={venueId:'71e69d5e-aa1d-4a33-a3b2-5b81d2bb1bd4',bookingDate:'2030-06-10',startsAt:'09:00',endsAt:'10:00',applicantName:'Demo User',applicantEmail:'demo@example.org',purpose:'Community workshop',attendees:15};
+test('valid booking is accepted',()=>{assert.equal(reservationInput.safeParse(base).success,true)});
+test('end time must follow start time',()=>{assert.equal(reservationInput.safeParse({...base,endsAt:'08:00'}).success,false)});
+test('invalid date format rejected',()=>{assert.equal(reservationInput.safeParse({...base,bookingDate:'tomorrow'}).success,false)});
+test('invalid email rejected',()=>{assert.equal(reservationInput.safeParse({...base,applicantEmail:'oops'}).success,false)});
+test('zero attendees rejected',()=>{assert.equal(reservationInput.safeParse({...base,attendees:0}).success,false)});
+test('bot honeypot rejects non-empty field',()=>{assert.equal(reservationInput.safeParse({...base,website:'example.biz'}).success,false)});
+test('past dates rejected with explicit timezone',()=>{assert.equal(isFutureSlot('2025-01-01','11:00',new Date('2026-11-01T00:00:00Z'),'Asia/Shanghai'),false)});
+test('future dates accepted with explicit timezone',()=>{assert.equal(isFutureSlot('2030-01-01','11:00',new Date('2026-11-01T00:00:00Z'),'Asia/Shanghai'),true)});

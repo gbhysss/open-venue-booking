@@ -1,0 +1,10 @@
+'use client';
+import { useEffect,useState } from 'react';
+import {Search,Clock3,CalendarDays,CheckCircle2,XCircle} from 'lucide-react';
+type Result={bookingDate:string;startsAt:string;endsAt:string;status:string;venueName:string;decisionNote:string|null};
+export function TrackClient(){
+ const [token,setToken]=useState('');const [data,setData]=useState<Result|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState('');
+ async function lookup(t=token){setBusy(true);setData(null);setError('');try{const r=await fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t}),cache:'no-store'});if(!r.ok)throw Error('Unable to find this request. Check your tracking link.');const j=await r.json();setData(j.data)}catch(e){setError(e instanceof Error?e.message:'Unable to check status')}finally{setBusy(false)}}
+ useEffect(()=>{const fromFragment=new URLSearchParams(window.location.hash.slice(1)).get('token')||'';if(fromFragment){setToken(fromFragment);void lookup(fromFragment)}},[]);
+ return <div className="track-card"><form onSubmit={e=>{e.preventDefault();void lookup()}}><label className="field">Your private tracking token<input required value={token} onChange={e=>setToken(e.target.value.trim())} placeholder="Paste the token from your link"/></label><button className="btn btn-primary btn-full" type="submit" disabled={busy}><Search size={17}/>{busy?'Checking…':'Check status'}</button></form>{error&&<p className="error-text">{error}</p>}{data&&<div className="tracking-result"><div className={`status-icon status-${data.status}`}>{data.status==='approved'?<CheckCircle2/>:data.status==='rejected'?<XCircle/>:<Clock3/>}</div><span className="section-kicker">CURRENT STATUS</span><h2>{data.status==='approved'?'Approved':data.status==='rejected'?'Not approved':'Awaiting review'}</h2><p>{data.venueName}</p><div className="tracking-date"><CalendarDays size={17}/>{data.bookingDate} · {data.startsAt.slice(0,5)} – {data.endsAt.slice(0,5)}</div>{data.decisionNote&&<p className="decision-note">Note: {data.decisionNote}</p>}</div>}</div>;
+}

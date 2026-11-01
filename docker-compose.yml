@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: openvenue
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: openvenue
+    volumes:
+      - openvenue_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openvenue -d openvenue"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    networks: [internal]
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://openvenue:${POSTGRES_PASSWORD}@db:5432/openvenue
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET in .env}
+      BETTER_AUTH_URL: ${APP_URL:?set APP_URL in .env}
+      APP_URL: ${APP_URL}
+      APP_NAME: ${APP_NAME:-OpenVenue}
+      APP_TIME_ZONE: ${APP_TIME_ZONE:-Asia/Shanghai}
+      BOOKING_MAX_PER_MINUTE: ${BOOKING_MAX_PER_MINUTE:-60}
+    ports: ["127.0.0.1:3000:3000"]
+    networks: [internal]
+  maintenance:
+    profiles: [tools]
+    build:
+      context: .
+      target: build
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://openvenue:${POSTGRES_PASSWORD}@db:5432/openvenue
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET in .env}
+      BETTER_AUTH_URL: ${APP_URL:?set APP_URL in .env}
+      APP_URL: ${APP_URL}
+      APP_TIME_ZONE: ${APP_TIME_ZONE:-Asia/Shanghai}
+    command: ["npm", "run", "db:migrate"]
+    networks: [internal]
+networks:
+  internal:
+volumes:
+  openvenue_pg:
