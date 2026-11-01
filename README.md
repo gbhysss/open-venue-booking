@@ -4,7 +4,7 @@
 
 [中文说明](README.zh-CN.md) · [Installation](docs/installation.md) · [Security](SECURITY.md) · [Contributing](CONTRIBUTING.md)
 
-> **Status: v0.2.2 container preview.** Typecheck, production build, native PostgreSQL 17 integration and local HTTP regression tests have passed. See [QUALITY_STATUS.md](QUALITY_STATUS.md) for exact evidence and remaining limits. Docker/Linux and public deployment still require verification.
+> **Status: v0.2.2 container preview.** Typecheck, production build, native PostgreSQL 17 integration and local HTTP regression tests have passed. See [QUALITY_STATUS.md](QUALITY_STATUS.md) for exact evidence and remaining limits. Linux Docker Compose deployment and database recovery passed in GitHub CI for application commit 728b33d. Public hosting is a separate deployment step.
 
 ## Highlights
 

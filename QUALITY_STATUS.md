@@ -2,9 +2,19 @@
 
 日期：2026-11-01（Asia/Shanghai）。这是修复预览版，不是正式生产安全认证。
 
-## v0.2.2 容器验收入口
+## v0.2.2 容器验收通过
 
-已加入独立 Docker Compose CI，覆盖镜像、初始化、非 root 运行、环境文件排除、实际 API 回归和数据库重启恢复。对应提交是否通过，以 GitHub Actions 的 `checks` 与 `Docker Compose deployment` 结果为准。详见 `docs/container-verification.md`。
+2026-11-01，应用提交 `728b33d42bf9b903579c352e162fa5305c240857` 的 `checks` 与 `Docker Compose deployment` 全部成功。
+
+记录：https://github.com/gbhysss/open-venue-booking/actions/runs/41266819211
+
+- Linux 镜像与 maintenance 镜像构建、重复初始化、虚构管理员和演示场馆创建通过。
+- 正式端口隔离、构建/运行镜像环境文件排除、非 root 进程检查通过。
+- 实际容器 HTTP 回归 9 个场景通过（含测试父级，Node 输出 10 项通过、0 失败）。
+- 数据库停机时健康检查返回 503，恢复后返回 200，数据保留，应用重启次数仍为 0。
+- 同一提交的类型检查、安全审计、PostgreSQL 集成测试、生产构建及 standalone HTTP 回归均通过。
+
+详情见 `docs/container-verification.md`。这些是 Linux 容器和本机验证，不代表已经上线公网或完成外部安全认证。
 
 下列内容为 v0.2.1 在本机验证时保存的历史记录；它不代表 v0.2.2 容器任务的当前状态。
 

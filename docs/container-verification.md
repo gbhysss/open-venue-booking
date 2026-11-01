@@ -1,6 +1,6 @@
 # 容器验收与本机演示
 
-v0.2.2 在 GitHub Actions 增加独立的 `Docker Compose deployment` 任务。验收结果以对应提交的 Actions 记录为准。
+v0.2.2 在 GitHub Actions 增加独立的 `Docker Compose deployment` 任务。应用提交 `728b33d` 的全部检查已成功：[查看 CI 记录](https://github.com/gbhysss/open-venue-booking/actions/runs/41266819211)。
 
 ## 验收内容
 
