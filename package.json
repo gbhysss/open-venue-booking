@@ -1,6 +1,6 @@
 {
   "name": "open-venue-booking",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "description": "Self-hosted open source venue booking and approval system",
   "scripts": {
@@ -13,7 +13,8 @@
     "admin:create": "tsx scripts/create-admin.ts",
     "test": "tsx --test --test-concurrency=1 tests/*.test.ts",
     "test:static": "node --experimental-strip-types --test tests/*.test.mjs",
-    "test:api": "tsx --test tests/api-regression.test.ts"
+    "test:api": "tsx --test tests/api-regression.test.ts",
+    "test:docker": "bash scripts/test-docker.sh"
   },
   "dependencies": {
     "better-auth": "^1.4.0",

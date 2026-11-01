@@ -4,7 +4,7 @@
 
 [中文说明](README.zh-CN.md) · [Installation](docs/installation.md) · [Security](SECURITY.md) · [Contributing](CONTRIBUTING.md)
 
-> **Status: v0.2.1 repair preview.** Typecheck, production build, native PostgreSQL 17 integration and local HTTP regression tests have passed. See [QUALITY_STATUS.md](QUALITY_STATUS.md) for exact evidence and remaining limits. Docker/Linux and public deployment still require verification.
+> **Status: v0.2.2 container preview.** Typecheck, production build, native PostgreSQL 17 integration and local HTTP regression tests have passed. See [QUALITY_STATUS.md](QUALITY_STATUS.md) for exact evidence and remaining limits. Docker/Linux and public deployment still require verification.
 
 ## Highlights
 
@@ -90,3 +90,7 @@ MIT License © 2026 OpenVenue contributors.
 ## v0.2.1
 
 修复内容与升级步骤：[docs/upgrading-0.2.1.md](docs/upgrading-0.2.1.md)。验证范围：[QUALITY_STATUS.md](QUALITY_STATUS.md)。
+
+## v0.2.2 容器验证
+
+容器健康检查、数据库恢复验收与本机演示步骤见 [docs/container-verification.md](docs/container-verification.md)。GitHub Actions 的 Docker 任务提供逐次提交的验收结果。

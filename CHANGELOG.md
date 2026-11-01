@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.2 — container readiness and recovery (2026-11-01)
+
+- Add schema-aware /api/health readiness and Docker HEALTHCHECK.
+- Bind standalone server explicitly to 0.0.0.0 in the image.
+- Bound database connection acquisition and handle interrupted idle sockets.
+- Wait for database/application readiness in guided Docker setup.
+- Add isolated Docker Compose CI: build/runtime env exclusion, non-root user, migrations, full HTTP regressions and database restart recovery.
+- Docker job results are recorded in GitHub Actions; no public deployment is implied.
+
+
 ## 0.2.1 — regression fixes (2026-11-01)
 
 - Preserve omitted venue fields on PATCH; reject empty/unknown patches.

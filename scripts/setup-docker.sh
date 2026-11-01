@@ -35,7 +35,7 @@ chmod 600 .env
 echo 'Generated unique credentials in .env (Git-ignored).'
 echo 'Building Docker images and initializing the local database...'
 docker compose --profile tools build
-docker compose up -d db
+docker compose up -d --wait --wait-timeout 90 db
 docker compose --profile tools run --rm maintenance npm run db:migrate
 printf 'Administrator email: '
 read -r ADMIN_EMAIL
@@ -54,7 +54,7 @@ read -r REPLY
 if [[ "$REPLY" == 'y' || "$REPLY" == 'Y' ]]; then
   docker compose --profile tools run --rm -e ALLOW_DEMO_SEED=true maintenance npm run db:seed
 fi
-docker compose up -d app
+docker compose up -d --wait --wait-timeout 90 app
 printf '\nLocal deployment started. Open http://localhost:3000\n'
 printf 'Admin sign-in: http://localhost:3000/login\n'
 printf 'Important: do not expose the preview publicly without security review.\n'

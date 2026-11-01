@@ -2,7 +2,7 @@
 
 **面向高校、社区、公共机构及中小组织的免费、自托管场馆预约与审批系统。**
 
-> **当前状态：v0.2.1 修复预览版。** 已完成依赖安装、类型检查、生产构建、原生 PostgreSQL 17 与本机 API 回归验证；详情及未验证范围见 `QUALITY_STATUS.md`。Docker/Linux 部署仍需验证。
+> **当前状态：v0.2.2 容器预览版。** 已完成依赖安装、类型检查、生产构建、原生 PostgreSQL 17 与本机 API 回归验证；详情及未验证范围见 `QUALITY_STATUS.md`。Docker/Linux 部署仍需验证。
 
 ## 已实现的功能
 
@@ -83,3 +83,7 @@ npm run dev
 ## v0.2.1
 
 修复内容与升级步骤：[docs/upgrading-0.2.1.md](docs/upgrading-0.2.1.md)。验证范围：[QUALITY_STATUS.md](QUALITY_STATUS.md)。
+
+## v0.2.2 容器验证
+
+容器健康检查、数据库恢复验收与本机演示步骤见 [docs/container-verification.md](docs/container-verification.md)。GitHub Actions 的 Docker 任务提供逐次提交的验收结果。

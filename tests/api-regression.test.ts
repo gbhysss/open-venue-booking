@@ -25,6 +25,11 @@ test('HTTP regression workflow on a disposable local deployment',{skip:!appUrl},
   const payload=()=>({venueId,bookingDate:'2035-06-10',startsAt:'09:00',endsAt:'10:00',
     applicantName:'Fictional Applicant',applicantEmail:prefix+'@example.org',purpose:'API regression',attendees:3,website:''});
   try {
+    await t.test('readiness verifies the migrated schema without exposing connection details',async()=>{
+      const health=await request('/api/health');
+      assert.equal(health.status,200);assert.deepEqual(health.j,{status:'ok'});
+      assert.equal(health.r.headers.get('cache-control'),'no-store');
+    });
     await t.test('authorization, disabled signup and administrator login',async()=>{
       for(const path of ['/api/admin/venues','/api/admin/reservations'])assert.equal((await request(path)).status,401);
       assert.ok((await request('/api/auth/sign-up/email','POST',{email:prefix+'@example.org',password:'fictional-test-only-password',name:'Outsider'})).status>=400);

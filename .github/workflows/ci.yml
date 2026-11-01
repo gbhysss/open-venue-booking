@@ -73,3 +73,17 @@ jobs:
             cat /tmp/openvenue-api.log
             exit 1
           fi
+  docker:
+    name: Docker Compose deployment
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test client dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build and verify isolated Docker deployment
+        run: bash scripts/test-docker.sh

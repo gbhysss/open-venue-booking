@@ -1,8 +1,14 @@
-# OpenVenue v0.2.1 — 验证状态
+# OpenVenue — 验证记录
 
 日期：2026-11-01（Asia/Shanghai）。这是修复预览版，不是正式生产安全认证。
 
-## 已完成
+## v0.2.2 容器验收入口
+
+已加入独立 Docker Compose CI，覆盖镜像、初始化、非 root 运行、环境文件排除、实际 API 回归和数据库重启恢复。对应提交是否通过，以 GitHub Actions 的 `checks` 与 `Docker Compose deployment` 结果为准。详见 `docs/container-verification.md`。
+
+下列内容为 v0.2.1 在本机验证时保存的历史记录；它不代表 v0.2.2 容器任务的当前状态。
+
+## v0.2.1 已完成
 
 | 检查 | 结果 |
 |---|---|
@@ -51,10 +57,10 @@ Browser plugin not available，使用已有 Playwright + 独立无头 Chrome，�
 ## 未完成及限制
 
 - Docker Compose、一键安装和 Linux 最终镜像尚未实测。本次已直接运行 standalone/server.js，并按 Dockerfile 复制 public 和 static 资源验证。
-- 新增 GitHub Actions 步骤已经编写，但未上传 GitHub，因此不声称远程 CI 已通过。
+- v0.2.1 已上传至私有仓库，首次 GitHub CI 通过： https://github.com/gbhysss/open-venue-booking/actions/runs/41266142801 。
 - 没有公网部署、压测、备份恢复演练或完整渗透测试。仍需 HTTPS、代理限流/连接超时和数据保留规则。
 - 依赖审计反映本次查询时的已知公告，不保证没有未知漏洞。
 - 源码/素材权属和实际开源社区使用情况仍需独立核实。
-- 未修改原业务系统、原 ZIP 或任何 GitHub 仓库；所有测试仅用虚构数据。
+- 原业务系统及原 ZIP 未修改；新独立私有仓库用于后续验证，所有测试仅用虚构数据。
 
 使用及升级见 `docs/upgrading-0.2.1.md`。运行 API 测试必须显式指定本机测试网站、独立 *_test 数据库和虚构管理员。默认 npm test 会跳过未配置的 API 回归；数据库测试未配置时也会跳过。
